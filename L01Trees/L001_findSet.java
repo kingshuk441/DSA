@@ -147,4 +147,128 @@ public class L001_findSet extends Tree {
 
     }
 
+    // burningTree
+    public static ArrayList<ArrayList<Integer>> burningTree(Node root, int fireNode) {
+        ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+        burningTree(root, fireNode, ans);
+        return ans;
+    }
+
+    private static int burningTree(Node root, int fireNode, ArrayList<ArrayList<Integer>> ans) {
+        if (root == null)
+            return -1;
+        if (root.data == fireNode) {
+            addKDownNodes(root, 0, null, ans);
+            return 1;
+        }
+        int left = burningTree(root.left, fireNode, ans);
+        if (left > 0) {
+            addKDownNodes(root, left, root.left, ans);
+            return left + 1;
+        }
+        int right = burningTree(root.right, fireNode, ans);
+        if (right > 0) {
+            addKDownNodes(root, right, root.right, ans);
+            return right + 1;
+        }
+        return -1;
+    }
+
+    private static void addKDownNodes(Node root, int k, Node blockNode, ArrayList<ArrayList<Integer>> ans) {
+        if (root == null || blockNode == root)
+            return;
+        if (ans.size() == k)
+            ans.add(new ArrayList<>());
+
+        ans.get(k).add(root.data);
+        addKDownNodes(root.left, k + 1, blockNode, ans);
+        addKDownNodes(root.right, k + 1, blockNode, ans);
+    }
+
+    public ArrayList<ArrayList<Integer>> burningTreeWithWater(Node root, int fireNode, List<Integer> waterNodes) {
+        ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+
+        Set<Integer> waterSet = new HashSet<>(waterNodes);
+        if (waterSet.contains(fireNode)) {
+            return ans;
+        }
+        burningTreeWithWater(root, fireNode, waterSet, ans);
+        System.out.println(ans);
+        return ans;
+    }
+
+    private int burningTreeWithWater(Node root, int fireNode, Set<Integer> waterSet,
+            ArrayList<ArrayList<Integer>> ans) {
+        if (root == null)
+            return -1;
+        if (root.data == fireNode) {
+            addKDownNodesForWater(root, 0, null, ans, waterSet);
+            return 1;
+        }
+        int left = burningTree(root.left, fireNode, ans);
+        if (left > 0) {
+            if (waterSet.contains(root.data)) {
+                return -2;
+            }
+            addKDownNodesForWater(root, left, root.left, ans, waterSet);
+            return left + 1;
+        }
+        if (left == -2) {
+            return -2;
+        }
+
+        int right = burningTree(root.right, fireNode, ans);
+        if (right > 0) {
+            if (waterSet.contains(root.data)) {
+                return -2;
+            }
+            addKDownNodesForWater(root, right, root.right, ans, waterSet);
+            return right + 1;
+        }
+        if (right == -2) {
+            return -2;
+        }
+        return -1;
+
+    }
+
+    private void addKDownNodesForWater(Node root, int k, Node blockNode, ArrayList<ArrayList<Integer>> ans,
+            Set<Integer> waterSet) {
+        if (root == null || blockNode == root || waterSet.contains(root.data))
+            return;
+        if (ans.size() == k)
+            ans.add(new ArrayList<>());
+
+        ans.get(k).add(root.data);
+        addKDownNodesForWater(root.left, k + 1, blockNode, ans, waterSet);
+        addKDownNodesForWater(root.right, k + 1, blockNode, ans, waterSet);
+    }
+
+    private TreeNode LCA;
+
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        LCA = null;
+        lca(root, p, q);
+
+        return LCA != null && find(LCA, p.val) && find(LCA, q.val) ? LCA : null;
+    }
+
+    private boolean lca(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null)
+            return false;
+        boolean mySelf = false;
+        if (root == p || root == q)
+            mySelf = true;
+        if (LCA != null) {
+            return false;
+        }
+        boolean left = lca(root.left, p, q);
+        boolean right = lca(root.right, p, q);
+        if ((mySelf && left) || (mySelf && right) || (right && left)) {
+            LCA = root;
+        }
+        return mySelf || left || right;
+
+    }
+
 }
