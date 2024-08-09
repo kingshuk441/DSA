@@ -2,10 +2,22 @@ package L01Trees;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class L003_Traversals extends Tree {
 
     private TreeNode getRightMostNode(TreeNode node, TreeNode curr) {
+        if (node == null) {
+            return null;
+        }
+        while (node.right != null && node.right != curr) {
+            node = node.right;
+        }
+        return node;
+
+    }
+
+    private Node getRightMostNode(Node node, Node curr) {
         if (node == null) {
             return null;
         }
@@ -102,4 +114,149 @@ public class L003_Traversals extends Tree {
         // 2 reverse the returned output
         return morrisReversePreOrderTraversal.reversed();
     }
+
+    public boolean isValidBST_MorrisTraversal(TreeNode root) {
+        TreeNode curr = root;
+        TreeNode prev = null;
+        while (curr != null) {
+            TreeNode leftNode = curr.left;
+            if (leftNode == null) {
+                if (prev != null && prev.val >= curr.val)
+                    return false;
+                prev = curr;
+                curr = curr.right;
+            } else {
+                TreeNode rightMostNode = getRightMostNode(leftNode, curr);
+                if (rightMostNode.right == null) {
+                    rightMostNode.right = curr;
+                    curr = curr.left;
+                } else {
+                    if (prev != null && prev.val >= curr.val)
+                        return false;
+                    prev = curr;
+                    rightMostNode.right = null;
+                    curr = curr.right;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean isValidBST_Stack(TreeNode root) {
+        Stack<TreeNode> st = new Stack<>();
+        insertAllLeft(root, st);
+        TreeNode prev = null;
+        while (st.size() > 0) {
+            TreeNode curr = st.pop();
+            if (curr.right != null) {
+                insertAllLeft(curr.right, st);
+            }
+            if (prev != null && prev.val >= curr.val)
+                return false;
+            prev = curr;
+        }
+        return true;
+    }
+
+    private void insertAllLeft(TreeNode root, Stack<TreeNode> st) {
+        while (root != null) {
+            st.add(root);
+            root = root.left;
+        }
+    }
+
+    class BSTIterator_MorrisTraversal {
+        TreeNode curr;
+
+        public BSTIterator_MorrisTraversal(TreeNode root) {
+            this.curr = root;
+        }
+
+        public int next() {
+            TreeNode nextNode = null;
+            while (curr != null) {
+                TreeNode leftNode = curr.left;
+                if (leftNode == null) {
+                    nextNode = curr;
+                    curr = curr.right;
+                    break;
+                } else {
+                    TreeNode rightMostNode = getRightMostNode(leftNode, curr);
+                    if (rightMostNode.right == null) {
+                        rightMostNode.right = curr;
+                        curr = curr.left;
+                    } else {
+                        rightMostNode.right = null;
+                        nextNode = curr;
+                        curr = curr.right;
+                        break;
+                    }
+                }
+            }
+            return nextNode.val;
+        }
+
+        public boolean hasNext() {
+            return curr != null;
+        }
+    }
+
+    class BSTIterator_Stack {
+
+        Stack<TreeNode> st;
+
+        private void insertAllLeft(TreeNode root, Stack<TreeNode> st) {
+            while (root != null) {
+                st.add(root);
+                root = root.left;
+            }
+        }
+
+        public BSTIterator_Stack(TreeNode root) {
+            this.st = new Stack<>();
+            insertAllLeft(root, st);
+        }
+
+        public int next() {
+            TreeNode nextVal = st.pop();
+            if (nextVal.right != null)
+                insertAllLeft(nextVal.right, st);
+            return nextVal.val;
+        }
+
+        public boolean hasNext() {
+            return st.size() > 0;
+        }
+    }
+
+    Node bToDLL(Node root) {
+        Node dummy = new Node(-1);
+        Node prev = dummy;
+        Node curr = root;
+        while (curr != null) {
+            Node leftNode = curr.left;
+            if (leftNode == null) {
+                prev.right = curr;
+                curr.left = prev;
+                prev = curr;
+                curr = curr.right;
+            } else {
+                Node rightMostNode = getRightMostNode(leftNode, curr);
+                if (rightMostNode.right == null) {
+                    rightMostNode.right = curr;
+                    curr = curr.left;
+                } else {
+                    rightMostNode.right = null;
+                    prev.right = curr;
+                    curr.left = prev;
+                    prev = curr;
+                    curr = curr.right;
+                }
+            }
+        }
+        Node head = dummy.right;
+        dummy.right = head.left = null;
+        return head;
+    }
+
 }
