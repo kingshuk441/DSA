@@ -271,4 +271,21 @@ public class L001_findSet extends Tree {
 
     }
 
+    public TreeNode lowestCommonAncestor2(TreeNode root, TreeNode p, TreeNode q) {
+        ArrayList<TreeNode> ntrp1 = new ArrayList<>();
+        ArrayList<TreeNode> ntrp2 = new ArrayList<>();
+        nodeToRootPath(root, p.val, ntrp1);
+        nodeToRootPath(root, q.val, ntrp2);
+        TreeNode lcaNode = null;
+        int i = ntrp1.size() - 1, j = ntrp2.size() - 1;
+        while (i >= 0 && j >= 0) {
+            TreeNode n1 = ntrp1.get(i++);
+            TreeNode n2 = ntrp2.get(j++);
+            if (n1.val != n2.val) {
+                break;
+            }
+            lcaNode = n1;
+        }
+        return lcaNode;
+    }
 }
