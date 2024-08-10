@@ -67,20 +67,6 @@ public class L002_BST extends Tree {
 
     }
 
-    public TreeNode constructFromInorder(int inorder[]) {
-        return constructFromInorder(inorder, 0, inorder.length - 1);
-    }
-
-    private TreeNode constructFromInorder(int[] inorder, int si, int ei) {
-        if (si > ei)
-            return null;
-        int mid = (si + ei) / 2;
-        TreeNode root = new TreeNode(inorder[mid]);
-        root.left = constructFromInorder(inorder, si, mid - 1);
-        root.right = constructFromInorder(inorder, mid + 1, ei);
-        return root;
-    }
-
     public TreeNode sortedListToBST(TreeNode head) {
         if (head == null || head.right == null)
             return head;
@@ -113,4 +99,97 @@ public class L002_BST extends Tree {
         }
         return slow;
     }
+
+    private TreeNode getRightMostNode(TreeNode node, TreeNode curr) {
+        if (node == null) {
+            return null;
+        }
+        while (node.right != null && node.right != curr) {
+            node = node.right;
+        }
+        return node;
+
+    }
+
+    TreeNode bToDLL(TreeNode root) {
+        TreeNode dummy = new TreeNode(-1);
+        TreeNode prev = dummy;
+        TreeNode curr = root;
+        while (curr != null) {
+            TreeNode leftNode = curr.left;
+            if (leftNode == null) {
+                prev.right = curr;
+                curr.left = prev;
+                prev = curr;
+                curr = curr.right;
+            } else {
+                TreeNode rightMostNode = getRightMostNode(leftNode, curr);
+                if (rightMostNode.right == null) {
+                    rightMostNode.right = curr;
+                    curr = curr.left;
+                } else {
+                    rightMostNode.right = null;
+                    prev.right = curr;
+                    curr.left = prev;
+                    prev = curr;
+                    curr = curr.right;
+                }
+            }
+        }
+        TreeNode head = dummy.right;
+        dummy.right = head.left = null;
+        return head;
+    }
+
+    public TreeNode binaryTreeToBST(TreeNode root) {
+        if (root == null)
+            return null;
+        TreeNode dllNode = bToDLL(root);
+        TreeNode sortedNode = mergeSort(dllNode);
+        return sortedListToBST(sortedNode);
+    }
+
+    private TreeNode mergeSort(TreeNode head) {
+        if (head == null || head.right == null)
+            return head;
+        TreeNode mid = middleOfLinkedList(head);
+        TreeNode nHead = mid.right;
+        mid.right = nHead.left = null;
+        TreeNode head1 = mergeSort(head);
+        TreeNode head2 = mergeSort(nHead);
+        return mergeSortedList(head1, head2);
+
+    }
+
+    private TreeNode mergeSortedList(TreeNode head1, TreeNode head2) {
+        if (head1 == null || head2 == null) {
+            return head1 == null ? head2 : head1;
+        }
+        TreeNode dummy = new TreeNode(-1);
+        TreeNode prev = dummy;
+        TreeNode c1 = head1, c2 = head2;
+        while (c1 != null && c2 != null) {
+            if (c1.val < c2.val) {
+                prev.right = c1;
+                c1.left = prev;
+                prev = c1;
+                c1 = c1.right;
+            } else {
+                prev.right = c2;
+                c2.left = prev;
+                prev = c2;
+                c2 = c2.right;
+            }
+        }
+        if (c1 != null) {
+            prev.right = c1;
+        } else {
+            prev.right = c2;
+        }
+        TreeNode head = dummy.right;
+        dummy.right = head.left = null;
+
+        return head;
+    }
+
 }

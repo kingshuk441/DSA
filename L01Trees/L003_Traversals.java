@@ -17,17 +17,6 @@ public class L003_Traversals extends Tree {
 
     }
 
-    private Node getRightMostNode(Node node, Node curr) {
-        if (node == null) {
-            return null;
-        }
-        while (node.right != null && node.right != curr) {
-            node = node.right;
-        }
-        return node;
-
-    }
-
     private TreeNode getLeftMostNode(TreeNode node, TreeNode curr) {
         if (node == null) {
             return null;
@@ -227,36 +216,6 @@ public class L003_Traversals extends Tree {
         public boolean hasNext() {
             return st.size() > 0;
         }
-    }
-
-    Node bToDLL(Node root) {
-        Node dummy = new Node(-1);
-        Node prev = dummy;
-        Node curr = root;
-        while (curr != null) {
-            Node leftNode = curr.left;
-            if (leftNode == null) {
-                prev.right = curr;
-                curr.left = prev;
-                prev = curr;
-                curr = curr.right;
-            } else {
-                Node rightMostNode = getRightMostNode(leftNode, curr);
-                if (rightMostNode.right == null) {
-                    rightMostNode.right = curr;
-                    curr = curr.left;
-                } else {
-                    rightMostNode.right = null;
-                    prev.right = curr;
-                    curr.left = prev;
-                    prev = curr;
-                    curr = curr.right;
-                }
-            }
-        }
-        Node head = dummy.right;
-        dummy.right = head.left = null;
-        return head;
     }
 
 }
