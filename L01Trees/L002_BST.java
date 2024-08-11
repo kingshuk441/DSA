@@ -192,4 +192,76 @@ public class L002_BST extends Tree {
         return head;
     }
 
+    class BalanceBstPair {
+        int height;
+        boolean isBalanced;
+
+        BalanceBstPair() {
+            this.height = -1;
+            this.isBalanced = true;
+        }
+    }
+
+    public boolean isBalanced(TreeNode root) {
+        return isBalanced_(root).isBalanced;
+    }
+
+    public BalanceBstPair isBalanced_(TreeNode root) {
+        if (root == null)
+            return new BalanceBstPair();
+        BalanceBstPair left = isBalanced_(root.left);
+        BalanceBstPair right = isBalanced_(root.right);
+        BalanceBstPair myRes = new BalanceBstPair();
+        myRes.isBalanced = left.isBalanced && right.isBalanced && Math.abs(left.height - right.height) <= 1;
+        myRes.height = Math.max(left.height, right.height) + 1;
+        return myRes;
+    }
+
+    static class LargestBstPair {
+        Node largestNode;
+        boolean isBst;
+        int max;
+        int min;
+        int size;
+
+        LargestBstPair() {
+            // this.largestNode
+            this.max = -(int) 1e9;
+            this.min = (int) 1e9;
+            this.isBst = true;
+            this.size = 0;
+        }
+    }
+
+    // Return the size of the largest sub-tree which is also a BST
+    static int largestBst(Node root) {
+        return largestBst_(root).largestNode.data;
+    }
+
+    static LargestBstPair largestBst_(Node root) {
+        if (root == null) {
+            return new LargestBstPair();
+        }
+        LargestBstPair left = largestBst_(root.left);
+        LargestBstPair right = largestBst_(root.right);
+        LargestBstPair myRes = new LargestBstPair();
+        myRes.isBst = left.isBst && right.isBst && (left.max < root.data && root.data < right.min);
+        if (myRes.isBst) {
+            myRes.size = left.size + right.size + 1;
+            myRes.max = Math.max(root.data, right.max);
+            myRes.min = Math.min(root.data, left.min);
+            myRes.largestNode = root;
+
+        } else {
+            if (left.size > right.size) {
+                myRes.size = left.size;
+                myRes.largestNode = left.largestNode;
+            } else {
+                myRes.size = right.size;
+                myRes.largestNode = right.largestNode;
+            }
+        }
+        return myRes;
+    }
+
 }
