@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-public class L003_Traversals extends Tree {
+public class L004_Traversals extends Tree {
 
     private TreeNode getRightMostNode(TreeNode node, TreeNode curr) {
         if (node == null) {
