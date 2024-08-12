@@ -57,6 +57,13 @@ public class Tree {
         }
     }
 
+    class Node2 {
+        public int val;
+        public Node2 left;
+        public Node2 right;
+        public Node2 parent;
+    }
+
     public void display(TreeNode node) {
         if (node == null)
             return;

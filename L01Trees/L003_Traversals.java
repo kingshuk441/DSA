@@ -218,4 +218,77 @@ public class L003_Traversals extends Tree {
         }
     }
 
+    public void predSuccBT(TreeNode root, int key) {
+        TreeNode curr = root, prev = null, succ = null, pred = null;
+        while (curr != null) {
+            TreeNode leftNode = curr.left;
+            if (leftNode == null) {
+                if (curr.val == key) {
+                    pred = prev;
+                }
+                if (prev != null && prev.val == key) {
+                    succ = curr;
+                }
+                prev = curr;
+                curr = curr.right;
+            } else {
+                TreeNode rightMostNode = getRightMostNode(leftNode, curr);
+                if (rightMostNode.right == null) {
+                    rightMostNode.right = curr;
+                    curr = curr.left;
+                } else {
+                    rightMostNode.right = null;
+                    if (curr.val == key) {
+                        pred = prev;
+                    }
+                    if (prev != null && prev.val == key) {
+                        succ = curr;
+                    }
+                    prev = curr;
+                    curr = curr.right;
+                }
+
+            }
+        }
+        System.out.println(succ.val);
+        System.out.println(pred.val);
+    }
+
+    private static Node leftMostNode(Node root) {
+        while (root.left != null)
+            root = root.left;
+        return root;
+    }
+
+    private static Node rightMostNode(Node root) {
+        while (root.right != null)
+            root = root.right;
+        return root;
+    }
+
+    public static void findPreSuc(Node root, Node[] pre, Node[] suc, int key) {
+        // update pre[0] with the predecessor of the key
+        // update suc[0] with the successor of the key
+        Node curr = root;
+        while (curr != null) {
+            if (key == curr.data) {
+                if (curr.right != null) {
+                    suc[0] = leftMostNode(curr.right);
+                }
+                if (curr.left != null) {
+                    pre[0] = rightMostNode(curr.left);
+                }
+                break;
+            }
+            if (key < curr.data) {
+                suc[0] = curr;
+                curr = curr.left;
+            } else {
+                pre[0] = curr;
+                curr = curr.right;
+            }
+        }
+
+    }
+
 }

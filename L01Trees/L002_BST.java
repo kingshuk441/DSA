@@ -264,4 +264,63 @@ public class L002_BST extends Tree {
         return myRes;
     }
 
+    public TreeNode insertIntoBST(TreeNode root, int val) {
+        if (root == null)
+            return new TreeNode(val);
+        if (val < root.val) {
+            root.left = insertIntoBST(root.left, val);
+        } else {
+            root.right = insertIntoBST(root.right, val);
+        }
+        return root;
+    }
+
+    public TreeNode deleteNode(TreeNode root, int key) {
+        if (root == null)
+            return null;
+        if (key < root.val) {
+            root.left = deleteNode(root.left, key);
+        } else if (key > root.val) {
+            root.right = deleteNode(root.right, key);
+        } else {
+            if (root.left == null || root.right == null) {
+                return root.left != null ? root.left : root.right;
+            } else {
+                TreeNode rightMostNode = getRightMostNode(root.left);
+                root.val = rightMostNode.val;
+                root.left = deleteNode(root.left, root.val);
+            }
+        }
+        return root;
+    }
+
+    private TreeNode getRightMostNode(TreeNode root) {
+        while (root.right != null) {
+            root = root.right;
+        }
+        return root;
+
+    }
+
+    private Node2 geLeftMostNode(Node2 root) {
+        while (root.right != null) {
+            root = root.right;
+        }
+        return root;
+
+    }
+
+    public Node2 inorderSuccessor2(Node2 root) {
+        if (root.right != null) {
+            return geLeftMostNode(root.right);
+        } else {
+            while (root != null) {
+                if (root.parent.left == root) {
+                    return root.parent;
+                }
+                root = root.parent;
+            }
+        }
+        return null;
+    }
 }
