@@ -291,4 +291,46 @@ public class L004_Traversals extends Tree {
 
     }
 
+    ArrayList<Integer> boundary(Node node) {
+        ArrayList<Integer> ans = new ArrayList<>();
+        if (node == null)
+            return ans;
+        ans.add(node.data);
+        if (node.left == null && node.right == null)
+            return ans;
+        printLeft(node.left, ans);
+        printLeaves(node, ans);
+        printRight(node.right, ans);
+        return ans;
+    }
+
+    private void printRight(Node root, ArrayList<Integer> ans) {
+        if (root == null || root.left == null && root.right == null)
+            return;
+        ans.add(root.data);
+        if (root.right != null)
+            printRight(root.right, ans);
+        else
+            printRight(root.left, ans);
+    }
+
+    private void printLeaves(Node root, ArrayList<Integer> ans) {
+        if (root == null)
+            return;
+        if (root.left == null && root.right == null)
+            ans.add(root.data);
+        printLeaves(root.left, ans);
+        printLeaves(root.right, ans);
+    }
+
+    private void printLeft(Node root, ArrayList<Integer> ans) {
+        if (root == null || root.left == null && root.right == null)
+            return;
+        ans.add(root.data);
+        if (root.left != null)
+            printLeft(root.left, ans);
+        else
+            printLeft(root.right, ans);
+    }
+
 }
