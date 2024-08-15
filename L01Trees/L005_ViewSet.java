@@ -412,4 +412,43 @@ public class L005_ViewSet extends Tree {
         }
         return ans;
     }
+
+    private class WidthPair {
+        TreeNode node;
+        int index;
+
+        WidthPair(TreeNode node, int index) {
+            this.node = node;
+            this.index = index;
+        }
+    }
+
+    public int widthOfBinaryTree(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        Queue<WidthPair> que = new ArrayDeque<>();
+        que.add(new WidthPair(root, 0));
+        int maxWidth = 0;
+        while (que.size() > 0) {
+            int size = que.size();
+            int leftMostIdx = que.peek().index;
+            int rightMostIdx = leftMostIdx;
+            while (size-- > 0) {
+                WidthPair remPair = que.remove();
+                TreeNode node = remPair.node;
+                int index = remPair.index;
+                rightMostIdx = Math.max(rightMostIdx, index);
+                if (node.left != null) {
+                    que.add(new WidthPair(node.left, 2 * index + 1));
+                }
+                if (node.right != null) {
+                    que.add(new WidthPair(node.right, 2 * index + 2));
+                }
+
+            }
+            maxWidth = Math.max(maxWidth, rightMostIdx - leftMostIdx + 1);
+        }
+        return maxWidth;
+    }
 }

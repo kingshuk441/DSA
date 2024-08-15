@@ -323,4 +323,45 @@ public class L002_BST extends Tree {
         }
         return null;
     }
+
+    public void recoverTree(TreeNode root) {
+        TreeNode curr = root, prev = null, a = null, b = null;
+        while (curr != null) {
+            TreeNode leftNode = curr.left;
+            if (leftNode == null) {
+                if (prev != null && prev.val > curr.val) {
+                    if (a == null) {
+                        a = prev;
+                    }
+                    b = curr;
+                }
+                prev = curr;
+
+                curr = curr.right;
+            } else {
+                TreeNode rightMostNode = getRightMostNode(curr, curr);
+                if (rightMostNode.right == null) {
+                    rightMostNode.right = curr;
+                    curr = curr.left;
+
+                } else {
+
+                    if (prev != null && prev.val > curr.val) {
+                        if (a == null) {
+                            a = prev;
+                        }
+                        b = curr;
+                    }
+                    prev = curr;
+                    rightMostNode.right = null;
+                    curr = curr.right;
+                }
+            }
+        }
+        if (a != null) {
+            int temp = a.val;
+            a.val = b.val;
+            b.val = temp;
+        }
+    }
 }
