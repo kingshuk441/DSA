@@ -140,4 +140,68 @@ public class L006_DiaSet extends Tree {
         return Math.max(rootToNodeMaxPathSum, root.data);
     }
 
+    int cameras = 0;
+
+    public int minCameraCover(TreeNode root) {
+        int a = minCameraCover_(root);
+        if (a == -1)
+            cameras++;
+        return cameras;
+    }
+
+    // -1 need of cam,0 - cam is placed, 1 - not req
+    private int minCameraCover_(TreeNode root) {
+        if (root == null)
+            return 1;
+        if (root.left == null && root.right == null)
+            return -1;
+        int l = minCameraCover_(root.left);
+        int r = minCameraCover_(root.right);
+        if (l == -1 || r == -1) {
+            cameras++;
+            return 0;
+        } else if (l == 1 && r == 1) {
+            return -1;
+        }
+        return 1;
+    }
+
+    public int rob(TreeNode root) {
+        int ans[] = rob_(root);
+        return Math.max(ans[0], ans[1]);
+    }
+
+    // withrob,withoutrob
+    private int[] rob_(TreeNode root) {
+        if (root == null) {
+            return new int[] { 0, 0 };
+        }
+
+        int[] left = rob_(root.left);
+        int[] right = rob_(root.right);
+        int myRes[] = new int[2];
+
+        myRes[0] = root.val + left[1] + right[1];
+        myRes[1] = Math.max(left[0], left[1]) + Math.max(right[1], right[0]);
+
+        return myRes;
+    }
+
+    public int longestZigZag(TreeNode root) {
+        return longestZigZag_(root)[2];
+    }
+
+    // fs,bs,msf
+    private int[] longestZigZag_(TreeNode root) {
+        if (root == null)
+            return new int[] { -1, -1, -1 };
+        int left[] = longestZigZag_(root.left);
+        int right[] = longestZigZag_(root.right);
+        int res[] = new int[3];
+        res[0] = left[1] + 1;
+        res[1] = right[0] + 1;
+        res[2] = Math.max(res[2], Math.max(res[1], Math.max(left[2], Math.max(right[2], res[0]))));
+        return res;
+    }
+
 }
