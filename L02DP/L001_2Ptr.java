@@ -1,5 +1,7 @@
 package L02DP;
 
+import java.util.Arrays;
+
 public class L001_2Ptr extends PrintArr {
     // 1_Faith
     // 2_Recursive_Tree
@@ -116,7 +118,7 @@ public class L001_2Ptr extends PrintArr {
 
     public int mazePath_Jump_memo(int sr, int sc, int er, int ec, int dir[][], int dp[][]) {
 
-        if (sr == ec && sc == ec) {
+        if (sr == er && sc == ec) {
             return dp[sr][sc] = 1;
         }
         if (dp[sr][sc] != -1)
@@ -134,4 +136,194 @@ public class L001_2Ptr extends PrintArr {
         return dp[sr][sc] = res;
     }
 
+    public int uniquePathsWithObstacles(int[][] arr) {
+        int dir[][] = { { 1, 0 }, { 0, 1 } };
+        int n = arr.length, m = arr[0].length;
+        int er = n - 1, ec = m - 1;
+        if (arr[er][ec] == 1 || arr[0][0] == 1)
+            return 0;
+        int dp[][] = new int[er + 1][ec + 1];
+        for (int d[] : dp)
+            Arrays.fill(d, -1);
+        return mazePath_Obst_memo(0, 0, er, ec, dir, dp, arr);
+    }
+
+    private int mazePath_Obst_memo(int sr, int sc, int er, int ec, int[][] dir, int dp[][], int arr[][]) {
+        if (sr == er && sc == ec) {
+            return dp[sr][sc] = 1;
+        }
+        if (dp[sr][sc] != -1)
+            return dp[sr][sc];
+
+        int res = 0;
+        for (int d[] : dir) {
+            int r = d[0] + sr;
+            int c = d[1] + sc;
+            if (r >= 0 && c >= 0 && r <= er && c <= ec && arr[r][c] != 1) {
+                res += mazePath_Obst_memo(r, c, er, ec, dir, dp, arr);
+            }
+        }
+        return dp[sr][sc] = res;
+    }
+
+    public int climbStairs(int n) {
+        int dp[] = new int[n + 1];
+        Arrays.fill(dp, -1);
+        return climbStairs(n, dp);
+    }
+
+    private int climbStairs(int n, int[] dp) {
+        if (n <= 1) {
+            return dp[n] = 1;
+        }
+        if (dp[n] != -1)
+            return dp[n];
+        int res = 0;
+        res += climbStairs(n - 1, dp);
+        if (n - 2 >= 0)
+            res += climbStairs(n - 2, dp);
+
+        return dp[n] = res;
+    }
+
+    public int minCostClimbingStairs(int[] cost) {
+        int n = cost.length;
+        int dp[] = new int[n + 1];
+        Arrays.fill(dp, -1);
+        return minCostClimbingStairs(cost, n, dp);
+    }
+
+    private int minCostClimbingStairs(int[] cost, int n, int[] dp) {
+        if (n == 0 || n == 1) {
+            return dp[n] = cost[n];
+        }
+        if (dp[n] != -1)
+            return dp[n];
+
+        int oneStep = minCostClimbingStairs(cost, n - 1, dp), twoStep = 0;
+        if (n - 2 >= 0) {
+            twoStep = minCostClimbingStairs(cost, n - 2, dp);
+        }
+        int res = Math.min(twoStep, oneStep) + (n < cost.length ? cost[n] : 0);
+
+        return dp[n] = res;
+
+    }
+
+    public int boardPath_memo(int sp, int ep, int dp[]) {
+        if (sp == ep) {
+            return dp[sp] = 1;
+        }
+        if (dp[sp] != -1)
+            return dp[sp];
+        int res = 0;
+        for (int dice = 1; dice <= 6; dice++) {
+            if (sp + dice <= ep)
+                res += boardPath_memo(sp + dice, ep, dp);
+        }
+        return dp[sp] = res;
+    }
+
+    public int boardPath_tabu(int SP, int EP) {
+        int dp[] = new int[EP + 1];
+        for (int sp = EP; sp >= SP; sp--) {
+
+            if (sp == EP) {
+                dp[sp] = 1;
+                continue;
+            }
+
+            int res = 0;
+            for (int dice = 1; dice <= 6; dice++) {
+                if (sp + dice <= EP)
+                    res += dp[sp + dice];
+            }
+            return dp[sp] = res;
+        }
+        return dp[SP];
+    }
+
+    public int numDecodings(String s) {
+        int n = s.length();
+        int dp[] = new int[n + 1];
+        Arrays.fill(dp, -1);
+        return numDecodings_memo(s, 0, dp);
+    }
+
+    private int numDecodings_memo(String s, int idx, int[] dp) {
+        int n = s.length();
+        if (idx == n) {
+            return dp[idx] = 1;
+        }
+        if (dp[idx] != -1)
+            return dp[idx];
+
+        int ch1 = s.charAt(idx) - '0';
+        if (ch1 == 0)
+            return dp[idx] = 0;
+        int res = 0;
+        res += numDecodings_memo(s, idx + 1, dp);
+        if (idx + 1 < n) {
+            int ch2 = s.charAt(idx + 1) - '0';
+            int value = (10 * ch1) + ch2;
+            if (value <= 26) {
+                res += numDecodings_memo(s, idx + 2, dp);
+            }
+        }
+        return dp[idx] = res;
+
+    }
+
+    private int numDecodings_tabu(String s, int IDX) {
+        int n = s.length();
+        int[] dp = new int[n + 1];
+        for (int idx = n - 1; idx >= 0; idx--) {
+            if (idx == n) {
+                dp[idx] = 1;
+                continue;
+            }
+
+            int ch1 = s.charAt(idx) - '0';
+            if (ch1 == 0) {
+                dp[idx] = 0;
+                continue;
+            }
+            int res = 0;
+            res += dp[idx + 1];
+            if (idx + 1 < n) {
+                int ch2 = s.charAt(idx + 1) - '0';
+                int value = (10 * ch1) + ch2;
+                if (value <= 26) {
+                    res += dp[idx + 2];
+                }
+            }
+            dp[idx] = res;
+        }
+        return dp[IDX];
+    }
+
+    private int numDecodings_Opti(String s) {
+        int a = 1, b = 0;
+        for (int idx = s.length() - 1; idx >= 0; idx--) {
+
+            int c = a;
+            int ch1 = s.charAt(idx) - '0';
+            if (ch1 == 0) {
+                b = a;
+                a = 0;
+                continue;
+            }
+            if (idx + 1 < s.length()) {
+                int ch2 = s.charAt(idx + 1) - '0';
+                int value = (10 * ch1) + ch2;
+                if (value <= 26)
+                    c += b;
+            }
+            b = a;
+            a = c;
+        }
+
+        return a;
+
+    }
 }
