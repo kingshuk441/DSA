@@ -326,4 +326,206 @@ public class L001_2Ptr extends PrintArr {
         return a;
 
     }
+
+    int mod = (int) 1e9 + 7;
+
+    public int numDecodings2(String s) {
+        long dp[] = new long[s.length() + 1];
+        Arrays.fill(dp, -1);
+        return (int) numDecodings2_memo(s, 0, dp);
+    }
+
+    private long numDecodings2_memo(String s, int idx, long[] dp) {
+        if (idx == s.length()) {
+            return dp[idx] = 1;
+        }
+        if (dp[idx] != -1)
+            return dp[idx];
+        char ch1 = s.charAt(idx);
+        if (ch1 == '0')
+            return dp[idx] = 0;
+        long res = 0;
+        if (ch1 == '*') {
+            res = (res % mod + (9 * numDecodings2_memo(s, idx + 1, dp) % mod)) % mod;
+        } else {
+            res = (res % mod + numDecodings2_memo(s, idx + 1, dp) % mod) % mod;
+        }
+        if (idx + 1 < s.length()) {
+            char ch2 = s.charAt(idx + 1);
+            if (ch2 == '*') {
+                if (ch1 == '1') {
+                    res = (res % mod + (9 * numDecodings2_memo(s, idx + 2, dp) % mod)) % mod;
+                } else if (ch1 == '2') {
+                    res = (res % mod + (6 * numDecodings2_memo(s, idx + 2, dp) % mod)) % mod;
+                } else if (ch1 == '*') {
+                    res = (res % mod + (15 * numDecodings2_memo(s, idx + 2, dp) % mod)) % mod;
+                }
+            } else {
+                if (ch1 == '*' && ch2 >= '0' && ch2 <= '6') {
+                    res = (res % mod + (2 * numDecodings2_memo(s, idx + 2, dp) % mod)) % mod;
+                } else if (ch1 == '*' && ch2 >= '7' && ch2 <= '9') {
+                    res = (res % mod + (1 * numDecodings2_memo(s, idx + 2, dp) % mod)) % mod;
+                }
+                if (ch1 != '*') {
+                    int val = (ch1 - '0') * 10 + (ch2 - '0');
+                    if (val <= 26) {
+                        res = (res % mod + (1 * numDecodings2_memo(s, idx + 2, dp) % mod)) % mod;
+                    }
+                }
+            }
+
+        }
+        return dp[idx] = res;
+
+    }
+
+    // (a+b)%c = (a%c + b%c)%c
+    // (a-b)%c = (a%c - b%c + c)%c
+    // (a*b)%c = (a%c * b%c )%c
+    private long numDecodings2_opti(String s) {
+        long res = 0;
+        long a = 1, b = 0;
+        for (int idx = s.length() - 1; idx >= 0; idx--) {
+            char ch1 = s.charAt(idx);
+            res = 0;
+            if (ch1 == '0') {
+                b = a;
+                a = 0;
+                continue;
+            }
+
+            if (ch1 == '*') {
+                res = (res % mod + (9 * a % mod)) % mod;
+            } else {
+                res = (res % mod + a % mod) % mod;
+            }
+
+            if (idx + 1 < s.length()) {
+                char ch2 = s.charAt(idx + 1);
+                if (ch2 == '*') {
+                    if (ch1 == '1') {
+                        res = (res % mod + (9 * b % mod)) % mod;
+                    } else if (ch1 == '2') {
+                        res = (res % mod + (6 * b % mod)) % mod;
+                    } else if (ch1 == '*') {
+                        res = (res % mod + (15 * b % mod)) % mod;
+                    }
+                } else {
+                    if (ch1 == '*' && ch2 >= '0' && ch2 <= '6') {
+                        res = (res % mod + (2 * b % mod)) % mod;
+                    } else if (ch1 == '*' && ch2 >= '7' && ch2 <= '9') {
+                        res = (res % mod + (1 * b % mod)) % mod;
+                    }
+                    if (ch1 != '*') {
+                        int val = (ch1 - '0') * 10 + (ch2 - '0');
+                        if (val <= 26) {
+                            res = (res % mod + (1 * b % mod)) % mod;
+                        }
+                    }
+
+                }
+            }
+            b = a;
+            a = res;
+        }
+
+        return a;
+    }
+
+    static int maxGold(int n, int m, int arr[][]) {
+        int dp[][] = new int[n][m];
+        for (int d[] : dp)
+            Arrays.fill(d, -1);
+        int max = 0;
+        int dir[][] = { { 0, 1 }, { 1, 1 }, { -1, 1 } };
+        int startingRow = 0;
+        for (int i = 0; i < n; i++) {
+            int res = maxGold(arr, i, 0, dp, dir);
+            if (res > max) {
+                max = res;
+                startingRow = i;
+            }
+
+        }
+        goldMine_backEng(dp, startingRow, 0, "", dir);
+        return max;
+    }
+
+    private static void goldMine_backEng(int[][] dp, int sr, int sc, String asf, int dir[][]) {
+        if (sc == dp.length - 1) {
+            System.out.println(asf + "(" + sr + ", " + sc + ") ");
+            return;
+        }
+        int max = 0, idx = -1;
+        for (int d = 0; d < dp.length; d++) {
+            int r = sr + dir[d][0];
+            int c = sc + dir[d][1];
+            if (r >= 0 && c >= 0 && r < dp.length && c < dp[0].length && dp[r][c] > max) {
+                max = dp[r][c];
+                idx = d;
+            }
+        }
+        if (idx != -1) {
+            int r = sr + dir[idx][0], c = sc + dir[idx][1];
+            goldMine_backEng(dp, r, c, asf + "(" + sr + ", " + sc + ") ", dir);
+        }
+    }
+
+    private static int maxGold(int[][] arr, int sr, int sc, int[][] dp, int dir[][]) {
+        if (sc == arr[0].length - 1) {
+            return dp[sr][sc] = arr[sr][sc];
+        }
+        if (dp[sr][sc] != -1)
+            return dp[sr][sc];
+        int max = 0;
+        for (int d[] : dir) {
+            int r = sr + d[0];
+            int c = sc + d[1];
+            if (r >= 0 && c >= 0 && r < arr.length && c < arr[0].length) {
+                max = Math.max(maxGold(arr, r, c, dp, dir) + arr[sr][sc], max);
+            }
+        }
+        return dp[sr][sc] = max;
+    }
+
+    // https:// www.geeksforgeeks.org/min-cost-path-dp-6/
+    int MOD = (int) 1e9 + 7;
+
+    public long countFriendsPairings(int n) {
+        long dp[] = new long[n + 1];
+        Arrays.fill(dp, -1);
+        return countFriendsPairings(n, dp);
+    }
+
+    private long countFriendsPairings(int n, long[] dp) {
+        if (n <= 1) {
+            return dp[n] = n;
+        }
+        if (dp[n] != -1)
+            return dp[n];
+        long singleP = countFriendsPairings(n - 1, dp) % MOD;
+        long doubleP = 0;
+        if (n - 2 >= 0)
+            doubleP = (countFriendsPairings(n - 2, dp) % MOD * (n - 1) % MOD) % MOD;
+
+        return dp[n] = singleP + doubleP;
+
+    }
+
+    public int divideInKGroup(int n, int k) {
+        int dp[][] = new int[n + 1][k + 1];
+        return divideInKGroup(n, k, dp);
+    }
+
+    private int divideInKGroup(int n, int k, int[][] dp) {
+        if (n == k || k == 1) {
+            return dp[n][k] = 1;
+        }
+        if (dp[n][k] != -1)
+            return dp[n][k];
+        int singleP = divideInKGroup(n - 1, k - 1, dp);
+        int doubleP = divideInKGroup(n - 1, k, dp) * k;
+        return dp[n][k] = singleP + doubleP;
+    }
+
 }
