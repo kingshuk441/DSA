@@ -312,4 +312,149 @@ public class L002_String extends PrintArr {
         }
     }
 
+    public int longestPalinSubseq_print(String s) {
+        int n = s.length();
+        int dp[][] = new int[n][n];
+        for (int gap = 0; gap < n; gap++) {
+            for (int i = 0, j = gap; j < n; j++, i++) {
+                if (i >= j) {
+                    dp[i][j] = (i > j) ? 0 : 1;
+                    continue;
+                }
+
+                if (s.charAt(i) == s.charAt(j)) {
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    dp[i][j] = Math.max(dp[i + 1][j],
+                            dp[i][j - 1]);
+                }
+            }
+        }
+        String ans = longestPalinSubseq_print(s, 0, n - 1, dp);
+        return ans.length();
+    }
+
+    private String longestPalinSubseq_print(String s, int i, int j, int[][] dp) {
+        if (i >= j) {
+            return (i == j) ? s.charAt(i) + "" : "";
+        }
+        if (s.charAt(i) == s.charAt(j)) {
+            String returnString = s.charAt(i) + longestPalinSubseq_print(s, i + 1, j - 1, dp) + s.charAt(i);
+            return returnString;
+        } else {
+            if (dp[i][j - 1] > dp[i + 1][j]) {
+                return longestPalinSubseq_print(s, i, j - 1, dp);
+            } else {
+                return longestPalinSubseq_print(s, i + 1, j, dp);
+            }
+        }
+    }
+
+    public int maxDotProduct(int[] nums1, int[] nums2) {
+        int n = nums1.length, m = nums2.length;
+        int dp[][] = new int[n + 1][m + 1];
+        for (int d[] : dp)
+            Arrays.fill(d, -1);
+        return maxDotProduct(nums1, nums2, n, m, dp);
+    }
+
+    private int maxDotProduct(int[] nums1, int[] nums2, int n, int m, int[][] dp) {
+        if (n == 0 || m == 0) {
+            return dp[n][m] = -(int) 1e9;
+        }
+        if (dp[n][m] != -1)
+            return dp[n][m];
+        int val = nums1[n - 1] * nums2[m - 1];
+
+        return dp[n][m] = Math.max(val + maxDotProduct(nums1, nums2, n - 1, m - 1, dp), Math.max(
+                maxDotProduct(nums1, nums2, n, m - 1, dp),
+                Math.max(maxDotProduct(nums1, nums2, n - 1, m, dp), val)));
+    }
+
+    public int longestCommonSubstr(String str1, String str2) {
+        int n = str1.length(), m = str2.length();
+        int max = 0;
+        int dp[][] = new int[n + 1][m + 1];
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                if (str1.charAt(i - 1) == str2.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                }
+                max = Math.max(max, dp[i][j]);
+            }
+        }
+        return max;
+    }
+
+    public String longestPalindrome(String s) {
+        int n = s.length();
+        boolean dp[][] = new boolean[n][n];
+        int len = 1, st = 0;
+        for (int gap = 0; gap < n; gap++) {
+            for (int i = 0, j = gap; j < n; i++, j++) {
+                if (gap == 0) {
+                    dp[i][j] = true;
+                    continue;
+                }
+                if (gap == 1) {
+                    dp[i][j] = (s.charAt(i) == s.charAt(j));
+                }
+                if (s.charAt(i) == s.charAt(j)) {
+                    if (dp[i + 1][j - 1]) {
+                        dp[i][j] = true;
+                    }
+                }
+                if (dp[i][j]) {
+                    if (gap + 1 > len) {
+                        len = gap + 1;
+                        st = j - gap;
+                    }
+                }
+            }
+        }
+        return s.substring(st, st + len);
+
+    }
+
+    public int minCut(String s) {
+        int n = s.length();
+        boolean pdp[][] = new boolean[n][n];
+        for (int gap = 0; gap < n; gap++) {
+            for (int i = 0, j = gap; j < n; i++, j++) {
+                if (gap == 0) {
+                    pdp[i][j] = true;
+                    continue;
+                }
+                if (gap == 1) {
+                    pdp[i][j] = (s.charAt(i) == s.charAt(j));
+                }
+                if (s.charAt(i) == s.charAt(j)) {
+                    if (pdp[i + 1][j - 1]) {
+                        pdp[i][j] = true;
+                    }
+                }
+            }
+        }
+        int dp[] = new int[n + 1];
+        Arrays.fill(dp, (int) 1e9);
+        return palindromePartioning2(s, 0, pdp, dp);
+
+    }
+
+    private int palindromePartioning2(String s, int idx, boolean[][] pdp, int[] dp) {
+        if (idx == s.length()) {
+            return dp[idx] = -1;
+        }
+        // if (pdp[idx][s.length() - 1])
+        // return 0;
+        if (dp[idx] != (int) 1e9)
+            return dp[idx];
+        int minCuts = (int) 1e8;
+        for (int cut = idx; cut < s.length(); cut++) {
+            if (pdp[idx][cut])
+                minCuts = Math.min(minCuts, palindromePartioning2(s, cut + 1, pdp, dp) + 1);
+        }
+
+        return dp[idx] = minCuts;
+    }
 }
