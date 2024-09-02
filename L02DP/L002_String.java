@@ -457,4 +457,132 @@ public class L002_String extends PrintArr {
 
         return dp[idx] = minCuts;
     }
+
+    int MOD = (int) 1e9 + 7;
+
+    public int countSubSeq(String s) {
+        int n = s.length();
+        int empty = 1, aSeq = 0, bSeq = 0, cSeq = 0;
+        for (int i = 0; i < n; i++) {
+            char ch = s.charAt(i);
+            if (ch == 'a') {
+                int sum = 2 * aSeq + empty;
+                aSeq = sum;
+            } else if (ch == 'b') {
+                int sum = 2 * bSeq + aSeq;
+                bSeq = sum;
+            } else {
+                int sum = 2 * cSeq + bSeq;
+                cSeq = sum;
+            }
+        }
+        return cSeq;
+    }
+
+    public boolean isMatchRE(String s, String p) {
+        int dp[][] = new int[s.length() + 1][p.length() + 1];
+        for (int d[] : dp)
+            Arrays.fill(d, -1);
+        p = removeStars(p);
+        return regularExpression(s, p, s.length(), p.length(), dp) == 1;
+    }
+
+    private int regularExpression(String s, String p, int n, int m, int[][] dp) {
+        if (n == 0 || m == 0) {
+            if (n == 0 && m == 0)
+                return dp[n][m] = 1;
+            else if (n == 1 && m == 1 && p.charAt(m - 1) == '.')
+                return dp[n][m] = 1;
+            else if (n != 0 && m == 2 && p.charAt(m - 1) == '*') {
+                char prevChar = p.charAt(m - 2);
+                while (n-- > 0) {
+                    if (prevChar != s.charAt(n - 1))
+                        return dp[n][m] = 0;
+                }
+                return dp[n][m] = 1;
+            } else if (n == 0 && m > 0 && p.charAt(m - 1) == '*') {
+                int k = m;
+
+                while (k > 0) {
+                    if (p.charAt(k - 1) != '*') {
+                        return dp[n][m] = 0;
+                    }
+                    k -= 2;
+                }
+                return dp[n][m] = 1;
+            }
+            return dp[n][m] = 0;
+        }
+        if (dp[n][m] != -1)
+            return dp[n][m];
+        if (s.charAt(n - 1) == p.charAt(m - 1) || p.charAt(m - 1) == '.') {
+            return dp[n][m] = regularExpression(s, p, n - 1, m - 1, dp);
+        } else {
+            char ch = p.charAt(m - 1);
+            if (ch == '*') {
+                if (m - 2 >= 0) {
+                    char prevChar = p.charAt(m - 2);
+                    int zero = regularExpression(s, p, n, m - 2, dp), notZero = 0;
+                    if (prevChar == s.charAt(n - 1) || prevChar == '.') {
+                        notZero = regularExpression(s, p, n - 1, m, dp);
+                    }
+                    return dp[n][m] = zero == 1 ? zero : notZero;
+                }
+            }
+
+        }
+        return dp[n][m] = 0;
+
+    }
+
+    public int palindromePartition(String s, int k) {
+        int n = s.length();
+        int minChanges[][] = getMinChangesToMakePalindrome(s);
+        int dp[][] = new int[n + 1][k + 1];
+        for (int d[] : dp)
+            Arrays.fill(d, -1);
+        return palindromePartioning3(s, k, minChanges, 0, dp);
+    }
+
+    private int palindromePartioning3(String s, int k, int[][] minChanges, int idx, int[][] dp) {
+        if (idx >= s.length()) {
+            if (k == 0)
+                return dp[idx][k] = 0;
+            else
+                return dp[idx][k] = (int) 1e8;
+        }
+        if (k == 1 || s.length() - idx == k) {
+            if (k == 1)
+                return dp[idx][k] = minChanges[idx][s.length() - 1];
+            return dp[idx][k] = 0;
+        }
+
+        if (dp[idx][k] != -1)
+            return dp[idx][k];
+        int min = (int) 1e9;
+        for (int j = idx; j < s.length(); j++) {
+            int convertFirstPart = minChanges[idx][j];
+            int secondPart = palindromePartioning3(s, k - 1, minChanges, j + 1, dp);
+            min = Math.min(min, convertFirstPart + secondPart);
+        }
+        return dp[idx][k] = min;
+
+    }
+
+    private int[][] getMinChangesToMakePalindrome(String s) {
+        int n = s.length();
+        int minChanges[][] = new int[n][n];
+        for (int gap = 1; gap < n; gap++) {
+            for (int i = 0, j = gap; j < n; j++, i++) {
+                if (gap == 1) {
+                    minChanges[i][j] = s.charAt(i) == s.charAt(j) ? 0 : 1;
+                } else {
+                    minChanges[i][j] = s.charAt(i) == s.charAt(j) ? minChanges[i + 1][j - 1]
+                            : minChanges[i + 1][j - 1] + 1;
+                }
+            }
+        }
+        return minChanges;
+    }
+
 }
