@@ -585,4 +585,26 @@ public class L002_String extends PrintArr {
         return minChanges;
     }
 
+    public int LongestRepeatingSubsequence(String str) {
+        int N = str.length();
+        int dp[][] = new int[N + 1][N + 1];
+        for (int n = 0; n <= N; n++) {
+            for (int m = 0; m <= N; m++) {
+                if (n == 0 || m == 0) {
+                    dp[n][m] = 0;
+                    continue;
+                }
+
+                if (n != m && str.charAt(n - 1) == str.charAt(m - 1)) {
+                    dp[n][m] = 1 + dp[n - 1][m - 1];
+
+                } else {
+                    dp[n][m] = Math.max(dp[n - 1][m],
+                            dp[n][m - 1]);
+                }
+            }
+        }
+        return dp[N][N];
+    }
+
 }
